@@ -49,8 +49,9 @@
             </div>
         </div>
 
-        <!-- Dashboard (Hidden by default) -->
+        <!-- Dashboard Section (Hidden by default) -->
         <div id="dashboardSection" class="hidden space-y-4">
+            <!-- Navigasi -->
             <nav class="glass p-3 sm:p-4 rounded-2xl shadow-sm flex justify-between items-center">
                 <div class="flex items-center space-x-3">
                     <div class="bg-blue-500 p-2 rounded-xl text-white shadow-sm">
@@ -66,8 +67,29 @@
                 </button>
             </nav>
 
+            <!-- Statistik (Khusus Admin) -->
+            <div id="statsGrid" class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6 hidden">
+                <div class="glass p-4 rounded-2xl border border-white">
+                    <p class="text-[10px] text-gray-400 uppercase font-bold mb-1">Total Murid</p>
+                    <p class="text-xl font-bold text-blue-600" id="statTotalMurid">0</p>
+                </div>
+                <div class="glass p-4 rounded-2xl border border-white">
+                    <p class="text-[10px] text-gray-400 uppercase font-bold mb-1">Total Kelas</p>
+                    <p class="text-xl font-bold text-emerald-600" id="statTotalKelas">0</p>
+                </div>
+                <div class="glass p-4 rounded-2xl border border-white">
+                    <p class="text-[10px] text-gray-400 uppercase font-bold mb-1">Hadir Hari Ini</p>
+                    <p class="text-xl font-bold text-purple-600" id="statHadir">0%</p>
+                </div>
+                <div class="glass p-4 rounded-2xl border border-white">
+                    <p class="text-[10px] text-gray-400 uppercase font-bold mb-1">Libur Berikutnya</p>
+                    <p class="text-sm font-bold text-rose-600 truncate" id="statNextLibur">-</p>
+                </div>
+            </div>
+
+            <!-- Grid Menu Dinamis -->
             <div class="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4" id="menuGrid">
-                <!-- Menu akan di-render secara dinamis berdasarkan role -->
+                <!-- Menu di-render via JavaScript -->
             </div>
         </div>
 
@@ -92,7 +114,14 @@
             
             document.getElementById('loginSection').classList.add('hidden');
             document.getElementById('dashboardSection').classList.remove('hidden');
-            renderDashboard(user === 'admin' ? 'admin' : 'wali_kelas');
+            
+            const role = user === 'admin' ? 'admin' : 'wali_kelas';
+            
+            if (role === 'admin') {
+                document.getElementById('statsGrid').classList.remove('hidden');
+            }
+            
+            renderDashboard(role);
         });
 
         function renderDashboard(role) {
@@ -100,14 +129,16 @@
             const userRoleText = document.getElementById('userRole');
             grid.innerHTML = '';
 
+            // Urutan Menu Sesuai Permintaan
             const menus = [
-                { title: 'Absensi', icon: 'fa-calendar-check', role: ['admin', 'wali_kelas'], color: 'bg-emerald-500' },
-                { title: 'Murid', icon: 'fa-user-graduate', role: ['admin', 'wali_kelas'], color: 'bg-sky-500' },
-                { title: 'Laporan', icon: 'fa-file-alt', role: ['admin', 'wali_kelas'], color: 'bg-violet-500' },
-                { title: 'Kelas', icon: 'fa-chalkboard', role: ['admin'], color: 'bg-amber-500' },
-                { title: 'Guru', icon: 'fa-user-tie', role: ['admin'], color: 'bg-indigo-500' },
-                { title: 'Libur', icon: 'fa-calendar-day', role: ['admin'], color: 'bg-rose-500' },
-                { title: 'Setelan', icon: 'fa-sliders-h', role: ['admin'], color: 'bg-slate-600' }
+                { title: 'Dashboard', icon: 'fa-chart-pie', role: ['admin', 'wali_kelas'], color: 'bg-blue-500' },
+                { title: 'Manajemen Kelas', icon: 'fa-chalkboard', role: ['admin'], color: 'bg-emerald-500' },
+                { title: 'Manajemen Murid', icon: 'fa-user-graduate', role: ['admin', 'wali_kelas'], color: 'bg-sky-500' },
+                { title: 'Manajemen Guru', icon: 'fa-user-tie', role: ['admin'], color: 'bg-indigo-500' },
+                { title: 'Input Absensi', icon: 'fa-calendar-check', role: ['admin', 'wali_kelas'], color: 'bg-amber-500' },
+                { title: 'Rekap Laporan', icon: 'fa-file-alt', role: ['admin', 'wali_kelas'], color: 'bg-violet-500' },
+                { title: 'Hari Libur', icon: 'fa-calendar-day', role: ['admin'], color: 'bg-rose-500' },
+                { title: 'Pengaturan', icon: 'fa-sliders-h', role: ['admin'], color: 'bg-slate-600' }
             ];
 
             userRoleText.innerText = role;
