@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Presensi Sekolah Modern</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        .bg-pattern { background-color: #f3f4f6; background-image: radial-gradient(#d1d5db 1px, transparent 1px); background-size: 20px 20px; }
+    </style>
+</head>
+<body class="bg-pattern min-h-screen font-sans text-gray-800">
+
+    <!-- Kontainer Utama -->
+    <div id="app" class="max-w-md mx-auto md:max-w-4xl p-4">
+        
+        <!-- Bagian Login -->
+        <div id="loginSection" class="mt-20 glass p-8 rounded-3xl shadow-2xl border border-white">
+            <div class="text-center mb-8">
+                <div class="bg-blue-600 w-20 h-20 rounded-2xl mx-auto flex items-center justify-center shadow-lg mb-4">
+                    <i class="fas fa-school text-white text-3xl"></i>
+                </div>
+                <h1 class="text-2xl font-bold text-gray-900">E-Presensi Sekolah</h1>
+                <p class="text-gray-500">Silakan masuk untuk melanjutkan</p>
+            </div>
+
+            <form id="loginForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                    <input type="text" id="username" class="w-full p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all" placeholder="Masukkan username" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <input type="password" id="password" class="w-full p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-lg transition-all active:scale-95">
+                    Masuk Sekarang
+                </button>
+            </form>
+            
+            <!-- Inisialisasi Database (Untuk Pertama Kali) -->
+            <div class="mt-8 pt-6 border-t border-gray-100">
+                <button id="btnInit" class="text-sm text-blue-600 hover:underline flex items-center justify-center w-full">
+                    <i class="fas fa-tools mr-2"></i> Pengaturan Awal (Inisialisasi Spreadsheet)
+                </button>
+            </div>
+        </div>
+
+        <!-- Dashboard (Hidden by default) -->
+        <div id="dashboardSection" class="hidden space-y-6">
+            <nav class="glass p-4 rounded-2xl shadow-md flex justify-between items-center mb-6">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-blue-100 p-2 rounded-lg text-blue-600"><i class="fas fa-user-circle text-xl"></i></div>
+                    <div>
+                        <p class="text-xs text-gray-500 font-medium" id="userRole">Wali Kelas</p>
+                        <p class="font-bold leading-none" id="userNameDisplay">Nama Pengguna</p>
+                    </div>
+                </div>
+                <button onclick="logout()" class="text-red-500 hover:bg-red-50 p-2 rounded-lg transition-colors">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </nav>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="menuGrid">
+                <!-- Menu akan di-render secara dinamis berdasarkan role -->
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Script Utama (Logika Integrasi) -->
+    <script>
+        const API_URL = "https://script.google.com/macros/s/AKfycbwgdqfLgGdiGZkeDvIty4UCrkKRgQCZfhomKHyMpUEpXPLzAGwLrAGBMSnRqpx--E6a/exec"; // Isi dengan Web App URL dari Google Apps Script nantinya
+
+        // 1. Fungsi Inisialisasi Database Otomatis
+        document.getElementById('btnInit').addEventListener('click', async () => {
+            const status = confirm("Sistem akan mencoba membuat file Spreadsheet baru di Google Drive Anda. Lanjutkan?");
+            if (!status) return;
+
+            // Logika memanggil Apps Script untuk mengenerate database
+            console.log("Memulai inisialisasi database...");
+            alert("Fitur ini akan memanggil fungsi 'initDatabase' di Apps Script.");
+        });
+
+        // 2. Logika Login
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            // Implementasi API Call ke backend Apps Script
+            const user = document.getElementById('username').value;
+            alert(`Mencoba masuk sebagai ${user}...`);
+            
+            // Simulasi Login (Akan diganti dengan Fetch ke Apps Script)
+            document.getElementById('loginSection').classList.add('hidden');
+            document.getElementById('dashboardSection').classList.remove('hidden');
+            renderDashboard(user === 'admin' ? 'admin' : 'wali_kelas');
+        });
+
+        function renderDashboard(role) {
+            const grid = document.getElementById('menuGrid');
+            const userRoleText = document.getElementById('userRole');
+            grid.innerHTML = '';
+
+            const menus = [
+                { title: 'Absensi Harian', icon: 'fa-calendar-check', role: ['admin', 'wali_kelas'], color: 'bg-green-500' },
+                { title: 'Data Murid', icon: 'fa-user-graduate', role: ['admin', 'wali_kelas'], color: 'bg-blue-500' },
+                { title: 'Rekap Laporan', icon: 'fa-file-medical-alt', role: ['admin', 'wali_kelas'], color: 'bg-purple-500' },
+                { title: 'Kelola Kelas', icon: 'fa-chalkboard', role: ['admin'], color: 'bg-orange-500' },
+                { title: 'Wali Kelas', icon: 'fa-user-tie', role: ['admin'], color: 'bg-indigo-500' },
+                { title: 'Hari Libur', icon: 'fa-umbrella-beach', role: ['admin'], color: 'bg-red-500' },
+                { title: 'Pengaturan', icon: 'fa-cog', role: ['admin'], color: 'bg-gray-600' }
+            ];
+
+            userRoleText.innerText = role.toUpperCase();
+
+            menus.filter(m => m.role.includes(role)).forEach(m => {
+                grid.innerHTML += `
+                    <div class="glass p-6 rounded-3xl border border-white hover:shadow-xl transition-all cursor-pointer group">
+                        <div class="${m.color} w-12 h-12 rounded-2xl flex items-center justify-center text-white mb-4 group-hover:scale-110 transition-transform shadow-lg">
+                            <i class="fas ${m.icon} text-xl"></i>
+                        </div>
+                        <h3 class="font-bold text-lg">${m.title}</h3>
+                        <p class="text-sm text-gray-500">Kelola ${m.title.toLowerCase()} sistem.</p>
+                    </div>
+                `;
+            });
+        }
+
+        function logout() {
+            location.reload();
+        }
+    </script>
+</body>
+</html>
